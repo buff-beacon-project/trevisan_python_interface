@@ -44,8 +44,8 @@ output from 'process_entropy':
 ```
   
 *Run the Trevisan extractor on the outcome bits from Alice and Bob to extract the certified output bits*  
+ 
 ```
-
 {
    cmd: 'extract',  
    params: {  
@@ -65,7 +65,8 @@ output from 'extract':
 ```
 
   
-*Get the relevant experimental parameters that need to be precommitted to. This is where things like the PEFs and entropy thresholds are computed.*  
+*Get the relevant experimental parameters that need to be precommitted too. This is where things like the PEFs and entropy thresholds are computed.*  
+
 ```
 {
    cmd: 'get_experiment_parameters',  
@@ -81,7 +82,7 @@ output from 'extract':
                 [3644178, 7733, 44673, 21698], 
                 [3642347, 47090, 6879, 22013], 
                 [3681573, 10585, 9913, 18796]]
-   }
+            }
 }
 output from 'get_experiment_parameters':
 {
@@ -99,4 +100,22 @@ output from 'get_experiment_parameters':
 }
 ```
 
+## Parameters that need to be pre-committed before the data request is made 
 
+```
+nBitsOut = int that represents the number of output bits from the extractor (typically 512),
+nBitsThreshold = float that represents the number of bits of entropy needed for success,
+errorSmoothness = float that is the error level for the data. Typically 0.8*2^(-64),
+errorExtractor = float that is the error level for the extractor. Typically 0.2*2^(-64),
+epsilonBias = float encoded as UTF-8 representing the bias in the settings distribution,
+seedLength = int that is the number of seed bits the extractor requires,
+stoppingCriteria = int; number of trials to look at (typically 15E6),
+beta =  float scaling parameter for the entropy calculation,
+isQuantum = boolean. If true it meens we are computing and using QEFs instead of PEFs,
+pefs = 4x4 nested array of floats, 
+       Example:
+       [[0.9999999999999982 1.006510090058448  1.0069115515256613 0.9019520376479409],
+       [1.0000000000000266 0.9289727143471139 0.9930607468650423 1.033425543789122 ],
+       [0.9999999999999998 0.993463817396224  0.9275174893374223 1.032381772978263 ],
+       [0.9999999999999745 0.9594734203226882 0.9609260606280244 1.0317220938924305]]
+```
