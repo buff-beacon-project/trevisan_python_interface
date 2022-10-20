@@ -1,6 +1,7 @@
 import numpy as np
 import itertools
 
+dtype = np.longdouble
 
 class PEF_Analysis(object):
     """This is the base class for quantum randomness generation via probability estimation. It was specifically written for analysis of data collected at NIST in Aug, 2018.
@@ -8,29 +9,29 @@ class PEF_Analysis(object):
     #creating different models for probability distributions that could arise
     def __init__(self, beta, epsilon_bias, delta , stat_strength_threshold = 10000, entropy_threshold = 1089, n_pulses=1, n_outcomes_a = 2, n_outcomes_b = 2, n_settings_a = 2, n_settings_b = 2):
         self.n_pulses = n_pulses
-        print("Number of pulses", n_pulses) # number of pulses is a currently necessary parameter to physically enforce space-like separation of the two labs.
+        # print("Number of pulses", n_pulses) # number of pulses is a currently necessary parameter to physically enforce space-like separation of the two labs.
         self.n_settings_a = n_settings_a
-        print("Number of Settings (Alice)", n_settings_a)
+        # print("Number of Settings (Alice)", n_settings_a)
         self.n_settings_b = n_settings_b
-        print("Number of Settings (Bob)", n_settings_b)
+        # print("Number of Settings (Bob)", n_settings_b)
         self.n_outcomes_a = n_outcomes_a
-        print("Number of Outcomes (Alice)", n_outcomes_a)
+        # print("Number of Outcomes (Alice)", n_outcomes_a)
         self.n_outcomes_b = n_outcomes_b
-        print("Number of Outcomes (Bob)", n_outcomes_b)
+        # print("Number of Outcomes (Bob)", n_outcomes_b)
         self.n_outcomes = self.n_outcomes_a * self.n_outcomes_b
-        print("Number of Total Outcomes", self.n_outcomes_a * self.n_outcomes_b)
+        # print("Number of Total Outcomes", self.n_outcomes_a * self.n_outcomes_b)
         self.n_settings_choice = self.n_settings_a * self.n_settings_b
-        print("Number of Total Settings Choices",  self.n_settings_a * self.n_settings_b)
+        # print("Number of Total Settings Choices",  self.n_settings_a * self.n_settings_b)
         self.beta = beta
-        print("Beta Parameter", beta)
+        # print("Beta Parameter", beta)
         self.epsilon_bias = epsilon_bias
-        print("Epsilon Bias Parameter in Settings: ", epsilon_bias)
+        # print("Epsilon Bias Parameter in Settings: ", epsilon_bias)
         self.delta = delta
-        print("Delta Parameter: ", delta)
+        # print("Delta Parameter: ", delta)
         self.stat_strength_threshold = stat_strength_threshold
-        print("Statistical Strength Threshold", stat_strength_threshold)
+        # print("Statistical Strength Threshold", stat_strength_threshold)
         self.entropy_threshold = entropy_threshold
-        print("Entropy Threshold", entropy_threshold)
+        # print("Entropy Threshold", entropy_threshold)
 
 
         # Construct the model of probability distributions for the implementation. Nominally, This consists of non-signaling behaviors subject to quantum constraints such as the Tsirelson bound.
@@ -63,7 +64,7 @@ class PEF_Analysis(object):
                             self.mLR[local_strat_num][
                                 (((f_A[x]*self.n_outcomes_b + f_B[y])*self.n_settings_a) + x)*self.n_settings_b + y] = 1
                     local_strat_num += 1
-        self.mLR = np.mat(self.mLR, dtype = np.longdouble)
+        self.mLR = np.mat(self.mLR, dtype=dtype)
 
 
     #creates PR Boxes (2, 2, 2) 2 stations, 2 outcomes for Alice
@@ -111,7 +112,7 @@ class PEF_Analysis(object):
                                     ind_AB = ((oA * self.n_outcomes_b) + oB)
                                     mPR[pr_extrema][(ind_AB * self.n_settings_choice) + settings_num] = 1 / 2.'''
                 pr_extrema += 1
-        self.mPR = np.mat(mPR, dtype  = np.longdouble)
+        self.mPR = np.mat(mPR, dtype=dtype)
 
     def _create_I_CHSH(self):
         """ @author: Mohammad Alhejji
@@ -131,5 +132,5 @@ class PEF_Analysis(object):
                             sign = correlate * should_correlate
                             index = (oA << 3) + (oB << 2) + (sA << 1) + sB
                             mCHSH[anti_correlation_idx][index] = sign
-        self.mCHSH = np.array(np.vstack((mCHSH, -mCHSH)), dtype = np.longdouble)
+        self.mCHSH = np.array(np.vstack((mCHSH, -mCHSH)), dtype=dtype)
         #be careful with the precision of the numbers you enter in python; you may want to use long double

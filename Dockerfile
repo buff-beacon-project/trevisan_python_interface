@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
-FROM amd64/ubuntu:xenial
-
+#FROM amd64/ubuntu:xenial
+FROM ubuntu:xenial
 RUN apt-get update
 
 RUN apt-get install -y make \
@@ -23,20 +23,24 @@ RUN ./configure
 RUN make
 RUN make install
 
-RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-RUN curl https://bootstrap.pypa.io/pip/3.5/get-pip.py -o get-pip.py
-
-RUN python3 get-pip.py
-RUN pip3 install --upgrade pip
-RUN pip3 install pyzmq
-RUN python3 -m pip install git+https://github.com/kshalm/zmqhelpers.git
-RUN pip3 install numpy
-
-#RUN rm Python-3.8.5.tgz
-
 WORKDIR /
 RUN mkdir ./trev/
 COPY ./trev/ ./trev/
 RUN make -C ./trev/
-COPY ./extractor_server.py .
-COPY ./extractor_object.py .
+
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+RUN curl https://bootstrap.pypa.io/pip/3.5/get-pip.py -o get-pip.py
+RUN python3 get-pip.py
+# WORKDIR /app
+
+
+RUN pip3 install --upgrade pip
+RUN pip3 install pyzmq
+RUN python3 -m pip install git+https://github.com/kshalm/zmqhelpers.git
+# RUN pip3 install numpy
+
+COPY requirements.txt /app/requirements.txt
+WORKDIR /app
+# RUN python3 -m pip install --upgrade pip && \
+# pip3 --no-cache-dir install -r requirements.txt
+RUN python3 -m pip --no-cache-dir install -r requirements.txt
