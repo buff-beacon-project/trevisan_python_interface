@@ -551,29 +551,31 @@ def beta_objective(beta, params):
     epsilon_bias = params['epsilon_bias']
     delta = params['delta']
     nbits = params['nbits'] 
-    error = params['error']
-    frac_smoothness = params['frac_smoothness']
+    error_smoothness = params['error_smoothness']
+    error_extractor = params['error_extractor']
+    # error = params['error']
+    # frac_smoothness = params['frac_smoothness']
     isQuantum = params['isQuantum']
 
     pefs, gain = calc_PEFs(freq, beta, epsilon_bias, delta)
 
-    error_smoothness = frac_smoothness*error
-    error_extractor = (1-frac_smoothness)*error
+    # error_smoothness = frac_smoothness*error
+    # error_extractor = (1-frac_smoothness)*error
     
     nbits_threshold = calc_threshold_bits(nbits, error_extractor, isQuantum=isQuantum)
-    # n_exp = compute_minimum_trials(nbits, beta, gain, error_smoothness, isQuantum=isQuantum)
     n_exp = compute_minimum_trials(nbits_threshold, beta, gain, error_smoothness, isQuantum=isQuantum)
     return n_exp[0]
 
 
-def find_optimal_beta(freq, epsilon_bias, delta, nbits, error, frac_smoothness, isQuantum):
+# def find_optimal_beta(freq, epsilon_bias, delta, nbits, error, frac_smoothness, isQuantum):
+def find_optimal_beta(freq, epsilon_bias, delta, nbits, error_smoothness, error_extractor, isQuantum):
     params = {}
     params['freq'] = freq
     params['epsilon_bias'] = epsilon_bias
     params['delta'] = delta
     params['nbits'] = nbits
-    params['error'] = error
-    params['frac_smoothness'] = frac_smoothness
+    params['error_smoothness'] = error_smoothness
+    params['error_extractor'] = error_extractor
     params['isQuantum'] = isQuantum
 
     x0 = 0.01

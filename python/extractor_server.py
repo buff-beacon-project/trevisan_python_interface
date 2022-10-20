@@ -128,13 +128,14 @@ class ExtractorServer(zmqh.Server):
         epsilonBias = float(params['epsilonBias'])
         # delta = float(params['delta'])
         nBitsOut = int(params['nBitsOut'])
-        error = float(params['error'])
-        fracSmoothness = float(params['fracSmoothness'])
+        # error = float(params['error'])
+        errorSmoothness = params['errorSmoothness']
+        errorExtractor = params['errorExtractor']
+        # fracSmoothness = float(params['fracSmoothness'])
         isQuantum = bool(params['isQuantum'])
         delta = self.get_delta(isQuantum)
 
-        beta = PEF.find_optimal_beta(freq, epsilonBias, delta, nBitsOut, error, fracSmoothness, isQuantum)
-        # beta = PEF.find_optimal_beta(params)
+        beta = PEF.find_optimal_beta(freq, epsilonBias, delta, nBitsOut, errorSmoothness, errorExtractor, isQuantum)
         return beta
 
     def calc_PEFs(self, params):

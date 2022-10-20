@@ -284,8 +284,8 @@ params['nBitsOut'] = nBitsOut
 params['errorSmoothness'] = errorSmoothness
 params['errorExtractor'] = errorExtractor
 params['isQuantum'] = isQuantum 
-params['error'] = error 
-params['fracSmoothness'] = fracSmoothness
+# params['error'] = error 
+# params['fracSmoothness'] = fracSmoothness
 # beta = find_optimal_beta(freq, epsilonBias, delta, nBitsOut, error, fracSmoothness, isQuantum)
 # pefs, gain = calc_PEFs(freq, beta, epsilonBias, isQuantum)
 # Compute PEFs and other parameters 

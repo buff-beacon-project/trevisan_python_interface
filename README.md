@@ -72,8 +72,8 @@ output from 'extract':
    params: {  
             epsilonBias = float encoded as UTF-8 representing the bias in the settings distribution,  
             nBitsOut = int encoded as UTF-8 that represents the number of output bits from the extractor (typically 512), 
-            error  = float encoded as UTF-8 for the total error we are certifying against (typically 2^(-64)),
-            fracSmoothness = float encoded as UTF-8 for the fraction of the error that applies to the data (typically 0.8),
+            errorSmoothness = float encoded as UTF-8 that is the error level for the data. Typically 0.8*2^(-64),
+            errorExtractor = float encoded as UTF-8 that is the error level for the extractor. Typically 0.2*2^(-64),
             isQuantum = boolean. If true it meens we are computing and using QEFs instead of PEFs
             freqs = 4x4 nested array of ints encoded to UTF-8, 
                Example:
@@ -81,10 +81,6 @@ output from 'extract':
                 [3644178, 7733, 44673, 21698], 
                 [3642347, 47090, 6879, 22013], 
                 [3681573, 10585, 9913, 18796]]
-
-            nBitsThreshold = float encoded as UTF-8 that represents the number of bits of entropy needed for success
-            errorSmoothness = float encoded as UTF-8 that is the error level for the data. Typically 0.8*2^(-64)
-            isQuantum = boolean. If true it meens we are computing and using QEFs instead of PEFs
    }
 }
 output from 'get_experiment_parameters':
