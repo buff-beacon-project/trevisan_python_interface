@@ -3,9 +3,22 @@ import zmqhelper as zmqh
 from extractor_class import TrevisanExtractorRun
 import json as json
 import time
+import traceback
 import PEF_Calculator as PEF
 import data_loading_mod as dlm
 import base64
+import codecs
+
+def parseSeed(base64Seed):
+    decoded = base64.b64decode(base64Seed)
+    str = "".join(["{:08b}".format(x) for x in decoded])
+    list = [int(x) for x in str]
+    return np.array(list).tolist()
+
+def bitStringToBase64(str):
+    as_hex = "%x" % int(str.replace('\n', ''), 2)
+    b = codecs.decode(as_hex, 'hex')
+    return base64.b64encode(b).decode('utf-8')
 
 class ExtractorServer(zmqh.Server):
     def __init__(self, port, n_workers, aggregate=True):
@@ -70,7 +83,7 @@ class ExtractorServer(zmqh.Server):
         outcomesReordered = outcomesReordered.tolist()
         print('OUTCOMES', outcomesReordered[0:100])
 
-        seed = np.array(params['seed']).tolist()
+        seed = parseSeed(params['seed'])
         entropy = params['entropy']
         nBitsOut = int(params['nBitsOut'])
         errorExtractor = float(params['errorExtractor'])
@@ -93,7 +106,7 @@ class ExtractorServer(zmqh.Server):
         print('files deleted, ready for more input')
         print('')
 
-        return outBits#.encode('utf-8')
+        return bitStringToBase64(outBits)#.encode('utf-8')
 
     def get_delta(self, isQuantum):
         if isQuantum:
@@ -277,6 +290,7 @@ class ExtractorServer(zmqh.Server):
         # Catch errors and return them
         except Exception as e:
             print("Error: %r" % e)
+            traceback.print_exc()
             res = {}
             res['error'] = "Error: "+str(e)
             # raise e

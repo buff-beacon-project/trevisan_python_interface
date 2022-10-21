@@ -1,8 +1,8 @@
 # Device-independent randomness generation analysis and Trevisan extractor server
 
-This is a Docker container that hosts a ZMQ server (written in Python 3). The server can be used to analyze data from the NIST looophole-free Bell experiment and to extract randomness. 
+This is a Docker container that hosts a ZMQ server (written in Python 3). The server can be used to analyze data from the NIST looophole-free Bell experiment and to extract randomness.
 
-## Setup  
+## Setup
 First build the Docker image: `docker build . -t trevisan`. To run use `docker-compose up` or `docker-compose up -d` to run in the background. To stop, type `docker-compose down`.
 
 The server expects a JSON string as input. The format is as follows:
@@ -20,12 +20,12 @@ The available commands are:
 
 ```
 {
-   cmd: 'process_entropy',  
-   params: {  
-            data: base64 representation of the raw data encoded as a UTF-8 string,  
-            epsilonBias = float encoded as UTF-8 representing the bias in the settings distribution,  
-            beta =  float encoded as UTF-8,  
-            pefs = 4x4 nested array of floats encoded to UTF-8, 
+   cmd: 'process_entropy',
+   params: {
+            data: base64 representation of the raw data encoded as a UTF-8 string,
+            epsilonBias = float encoded as UTF-8 representing the bias in the settings distribution,
+            beta =  float encoded as UTF-8,
+            pefs = 4x4 nested array of floats encoded to UTF-8,
                Example:
                [[0.9999999999999982 1.006510090058448  1.0069115515256613 0.9019520376479409],
                [1.0000000000000266 0.9289727143471139 0.9930607468650423 1.033425543789122 ],
@@ -42,16 +42,15 @@ output from 'process_entropy':
     isThereEnoughEntropy = boolean as to whether there is enough entropy to run the extractor
 }
 ```
-  
-*Run the Trevisan extractor on the outcome bits from Alice and Bob to extract the certified output bits*  
- 
+
+*Run the Trevisan extractor on the outcome bits from Alice and Bob to extract the certified output bits*
+
 ```
 {
-   cmd: 'extract',  
-   params: {  
-            data: base64 representation of the raw data encoded as a UTF-8 string,  
-            seed = list of seed bits. Should be long enough,
-                example: [1,0,0,1,1]  
+   cmd: 'extract',
+   params: {
+            data: base64 representation of the raw data encoded as a UTF-8 string,
+            seed = base64 representation of seed
             entropy = float encoded as UTF-8 that represents the number of bits of entropy in the inputs to the extractor,
             nBitsOut = int encoded as UTF-8 that represents the number of output bits from the extractor (typically 512),
             errorExtractor = float encoded as UTF-8 that is the error level for the extractor. Typically 0.2*2^(-64),
@@ -60,38 +59,38 @@ output from 'process_entropy':
 }
 output from 'extract':
 {
-    outbits: 'string of output bits from the extractor (1010001001001...)'
+    outBits: base64 encoded output bytes
 }
 ```
 
-  
-*Get the relevant experimental parameters that need to be precommitted too. This is where things like the PEFs and entropy thresholds are computed.*  
+
+*Get the relevant experimental parameters that need to be precommitted too. This is where things like the PEFs and entropy thresholds are computed.*
 
 ```
 {
-   cmd: 'get_experiment_parameters',  
-   params: {  
-            epsilonBias = float encoded as UTF-8 representing the bias in the settings distribution,  
-            nBitsOut = int encoded as UTF-8 that represents the number of output bits from the extractor (typically 512), 
+   cmd: 'get_experiment_parameters',
+   params: {
+            epsilonBias = float encoded as UTF-8 representing the bias in the settings distribution,
+            nBitsOut = int encoded as UTF-8 that represents the number of output bits from the extractor (typically 512),
             errorSmoothness = float encoded as UTF-8 that is the error level for the data. Typically 0.8*2^(-64),
             errorExtractor = float encoded as UTF-8 that is the error level for the extractor. Typically 0.2*2^(-64),
             isQuantum = boolean. If true it meens we are computing and using QEFs instead of PEFs
-            freqs = 4x4 nested array of ints encoded to UTF-8, 
+            freq = 4x4 nested array of ints encoded to UTF-8,
                Example:
-               [[3587826, 66849, 64304, 2000], 
-                [3644178, 7733, 44673, 21698], 
-                [3642347, 47090, 6879, 22013], 
+               [[3587826, 66849, 64304, 2000],
+                [3644178, 7733, 44673, 21698],
+                [3642347, 47090, 6879, 22013],
                 [3681573, 10585, 9913, 18796]]
-            }
+    }
 }
 output from 'get_experiment_parameters':
 {
     beta =  float encoded as UTF-8,
-    gain = float encoded as UTF-8 that represents the bits of entropy accumulated per trial, 
+    gain = float encoded as UTF-8 that represents the bits of entropy accumulated per trial,
     nBitsThreshold = float encoded as UTF-8 that represents the number of bits of entropy needed for success,
     nTrialsNeeded = int encoded as UTF-8 that is the minimum number of trials needed to reach the nBitsThreshold of entropy for success,
     seedLength = int encoded as UTF-8 that is the number of seed bits the extractor requires,
-    pefs = 4x4 nested array of floats encoded to UTF-8, 
+    pefs = 4x4 nested array of floats encoded to UTF-8,
                Example:
                [[0.9999999999999982 1.006510090058448  1.0069115515256613 0.9019520376479409],
                [1.0000000000000266 0.9289727143471139 0.9930607468650423 1.033425543789122 ],
@@ -100,7 +99,7 @@ output from 'get_experiment_parameters':
 }
 ```
 
-## Parameters that need to be pre-committed before the data request is made 
+## Parameters that need to be pre-committed before the data request is made
 
 ```
 nBitsOut = int that represents the number of output bits from the extractor (typically 512),
@@ -112,7 +111,7 @@ seedLength = int that is the number of seed bits the extractor requires,
 stoppingCriteria = int; number of trials to look at (typically 15E6),
 beta =  float scaling parameter for the entropy calculation,
 isQuantum = boolean. If true it meens we are computing and using QEFs instead of PEFs,
-pefs = 4x4 nested array of floats, 
+pefs = 4x4 nested array of floats,
        Example:
        [[0.9999999999999982 1.006510090058448  1.0069115515256613 0.9019520376479409],
        [1.0000000000000266 0.9289727143471139 0.9930607468650423 1.033425543789122 ],
