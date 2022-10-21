@@ -4,7 +4,7 @@ from extractor_class import TrevisanExtractorRun
 import json as json
 import time
 import PEF_Calculator as PEF
-import data_loading_mod as dlm 
+import data_loading_mod as dlm
 import base64
 
 class ExtractorServer(zmqh.Server):
@@ -31,7 +31,7 @@ class ExtractorServer(zmqh.Server):
     #     Output: a string of '1's and '0's encoded into a python bytes object.
     #     '''
     #     # Turn the bytes recieved into a string
-        
+
 
     def run_extractor(self,params):
         print('')
@@ -88,7 +88,7 @@ class ExtractorServer(zmqh.Server):
         outBits = extractorObject.read_output()
         print('output bits', outBits)
         print('cleaning up')
-        extractorObject.remove_files() 
+        extractorObject.remove_files()
         extractorObject = None
         print('files deleted, ready for more input')
         print('')
@@ -111,7 +111,7 @@ class ExtractorServer(zmqh.Server):
         if 'stoppingCriteria' in params:
             stoppingCriteria = int(params['stoppingCriteria'])
         else:
-            stoppingCriteria = -1 
+            stoppingCriteria = -1
         data = data[0:stoppingCriteria]
         freq = dlm.get_freqs(data)
         freq = freq
@@ -119,7 +119,7 @@ class ExtractorServer(zmqh.Server):
         return freq
 
     def extract_data(self, data):
-        pass 
+        pass
 
     def find_optimal_beta(self, params):
         freq = np.array(params['freq'])
@@ -156,7 +156,7 @@ class ExtractorServer(zmqh.Server):
         isQuantum = bool(params['isQuantum'])
         delta = self.get_delta(isQuantum)
 
-        entropy = PEF.calculate_entropy(freq, pefs, errorSmoothness, 
+        entropy = PEF.calculate_entropy(freq, pefs, errorSmoothness,
                 beta, epsilonBias, delta, isQuantum=isQuantum)
         return entropy
 
@@ -179,8 +179,8 @@ class ExtractorServer(zmqh.Server):
 
     def process_entropy(self, params):
         # nBitsThreshold, nTrialsNeeded, seedLength = self.compute_extractor_properties(params)
-        # params['nBitsThreshold'] = nBitsThreshold 
-        freq = self.get_freqs(params) 
+        # params['nBitsThreshold'] = nBitsThreshold
+        freq = self.get_freqs(params)
         params['freq'] = freq
         entropy = self.calc_entropy(params)
 
@@ -190,7 +190,7 @@ class ExtractorServer(zmqh.Server):
 
     def get_experiment_parameters(self, params):
         # params['stoppingCriteria'] = -1
-        # freq = self.get_freqs(params) 
+        # freq = self.get_freqs(params)
         # params['freq'] = freq
         print('finding optimal_beta')
         beta = self.find_optimal_beta(params)
@@ -198,7 +198,7 @@ class ExtractorServer(zmqh.Server):
         print('beta', beta)
 
         pefs, gain = self.calc_PEFs(params)
-        params['pefs'] = pefs 
+        params['pefs'] = pefs
         params['gain'] = gain
         print('pefs', pefs)
         print('gain', gain)
@@ -207,18 +207,17 @@ class ExtractorServer(zmqh.Server):
         return pefs, beta, gain, nBitsThreshold, nTrialsNeeded, seedLength
 
     def handle(self,msg):
-        print('')
-        print('message received')
-        inputs = json.loads(msg)
-        cmd = inputs['cmd']
-        params = inputs['params']
-        # print("Received request: %s" % cmd)
-        # print('cmd', cmd[0])
-        cmd = cmd.lower()
-        print('Received command:', cmd)
-
         # Msgout is returned from motor command
         try:
+            print('')
+            print('message received')
+            inputs = json.loads(msg)
+            cmd = inputs['cmd']
+            params = inputs['params']
+            # print("Received request: %s" % cmd)
+            # print('cmd', cmd[0])
+            cmd = cmd.lower()
+            print('Received command:', cmd)
             if cmd == "extract":
                 outBits = self.run_extractor(params)
                 res = {}
@@ -229,7 +228,7 @@ class ExtractorServer(zmqh.Server):
                 res = {}
                 res['freqs'] = freqs
                 # msgout = freqs
-                
+
             elif cmd == 'calc_pefs':
                 pefs, gain = self.calc_PEFs(params)
                 res = {}
@@ -240,12 +239,12 @@ class ExtractorServer(zmqh.Server):
                 beta = self.find_optimal_beta(params)
                 res = {}
                 res['beta'] = beta
-                
+
             elif cmd == 'calc_entropy':
                 entropy = self.calc_entropy(params)
                 res = {}
                 res['entropy'] = entropy
-                
+
             elif cmd == 'process_entropy':
                 entropy, success = self.process_entropy(params)
                 res = {}
@@ -260,7 +259,7 @@ class ExtractorServer(zmqh.Server):
                 res['nBitsThreshold'] = nBitsThreshold
                 res['nTrialsNeeded'] = nTrialsNeeded
                 res['seedLength'] = seedLength
-                
+
             elif cmd == 'get_experiment_parameters':
                 pefs, beta, gain, nBitsThreshold, nTrialsNeeded, seedLength = self.get_experiment_parameters(params)
                 res = {}
@@ -280,7 +279,7 @@ class ExtractorServer(zmqh.Server):
             print("Error: %r" % e)
             res = {}
             res['error'] = "Error: "+str(e)
-            raise e
+            # raise e
         msgout = self.encode_message_to_JSON(res)
         msgout = msgout.encode('utf-8')
 
