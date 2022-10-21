@@ -8,9 +8,13 @@ import data_loading_mod as dlm
 import base64
 
 class ExtractorServer(zmqh.Server):
-    def __init__(self, port, n_workers):
-        self.dataFormat = [('SA','u1'),('SB','u1'),('OA','u8'),('OB','u8')]
-        # self.dataFormat = [('SA','u1'),('SB','u1'),('OA','u1'),('OB','u1')]
+    def __init__(self, port, n_workers, aggregate=True):
+        if aggregate:
+            self.dataFormat = [('SA','u1'),('SB','u1'),('OA','u1'),('OB','u1')]
+        else:
+            self.dataFormat = [('SA','u1'),('SB','u1'),('OA','u8'),('OB','u8')]
+
+        print(self.dataFormat)
         super().__init__(port, n_workers)
 
     # def handle(self, msg):
@@ -35,14 +39,8 @@ class ExtractorServer(zmqh.Server):
         params['data'] = None
         data = dlm.read_data_buffer(binData, self.dataFormat)
         binData = None
-        # outcomeA = (data['OA'] > 0).astype(int)
-        # outcomeB = (data['OB'] > 0).astype(int)
-        # indxOA = data['OA']>0
-        # data['OA'][indxOA] = 1
-        # indxOB = data['OB']>0
-        # data['OB'][indxOB] = 1
 
-        outcomesReordered =np.array([[data['OA']],[data['OB']]])
+        outcomesReordered = np.array([[data['OA']],[data['OB']]])
         data = None
         outcomesReordered = outcomesReordered.transpose().flatten()
         # print('step 1')
@@ -311,4 +309,4 @@ class ExtractorServer(zmqh.Server):
 
 if __name__ == '__main__':
     print('Starting Extractor Server')
-    pefs = ExtractorServer(port='5553', n_workers=1)
+    pefs = ExtractorServer(port='5553', n_workers=1, aggregate=True)

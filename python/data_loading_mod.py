@@ -164,7 +164,7 @@ def determine_mask(pulses):
     return mask
 
 
-def get_freqs_pulse_encoding(data, pulses,dataFormat=[('SA','u1'),('SB','u1'),('OA','u8'),('OB','u8')]):
+def get_freqs_pulse_encoding(data, pulses, dataFormat=[('SA','u1'),('SB','u1'),('OA','u8'),('OB','u8')]):
     """ @author: Mohammad Alhejji
         @Last modified: 07/21/2021 by Joe Cavanagh
     Takes data from binary file and outputs the frequencies matrix f(c|z): a matrix where each entry is the
@@ -172,22 +172,17 @@ def get_freqs_pulse_encoding(data, pulses,dataFormat=[('SA','u1'),('SB','u1'),('
         :param data - the array created from the data in the binary file
         :return freq - frequencies matrix for all 16 possible S+O combination
     """
-    # output_data = {}
-    # output_data['SA'] = np.array(data['SA'])
-    # output_data['SB'] = np.array(data['SB'])
-    # output_data['OA'] = np.array(data['OA'])
-    # output_data['OB'] = np.array(data['OB'])
-
-    output_data = np.array(data, dtype=dataFormat)
+    output_data = np.array(data)
 
 
     #create mask based on pulses considered
     # pulses = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
     #only considering these pulses (NOTE: python follows zero-based indexing. These are actually pulses 4-14)
     mask = determine_mask(pulses)
-    output_data = restructure_outcomes(output_data, mask)
-    # print('max after', np.max(output_data['SA']))
+    output_data['OA'] = (output_data['OA']& mask > 1)
+    output_data['OB'] = (output_data['OB']& mask > 1)
 
+    output_data = np.array(data, dtype=dataFormat)
 
     #print("creating frequencies array")
     # Find which round(trials) have which setting choices {1, 2}
