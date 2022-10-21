@@ -1,6 +1,8 @@
 version: "3.3"
 services:
   trevisan:
+    hostname: "trevisan"
+    build: .
     image: "trevisan"
     ports:
       - "5553:5553"
@@ -88,3 +90,6 @@ services:
   #   network_mode: "service:redis"
   #   command: ["streamlit", "run", "streamlittest.py", "--server.port", "80", "--browser.gatherUsageStats", "False"]
 
+networks:
+  default:
+    name: trevisan-network
