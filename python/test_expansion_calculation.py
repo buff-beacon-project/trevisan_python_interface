@@ -26,6 +26,41 @@ freq = np.array([[32266283,600862,580732, 18985],
                 [32803817, 422004, 61941, 197106],
                 [33128142,  94035, 89267, 171053]])
 
+def compress_binary_data(data, aggregate=False):
+    # # f = open(fname, 'a+')
+    # '''
+    # data types:
+    # 'u1' = 1-byte unsinged integer
+    # 'u8' = 8-byte unsigned integers
+    # '''
+    # sA = data['alice']['Setting'].astype('u1') # Alice Settings
+    # sB = data['bob']['Setting'].astype('u1') # Bob settings
+    # eA = data['alice']['Outcome'].astype('u8') # Alice outcome
+    # eB = data['bob']['Outcome'].astype('u8') # Bob outcome
+    # if aggregate:
+    #     dataType = [('sA','u1'),('sB','u1'),('eA','u1'), ('eB','u1')]
+    # else:
+    #     dataType = [('sA','u1'),('sB','u1'),('eA','u8'), ('eB','u8')]
+
+    # Create a structured array. Each row represents the results from one trial.
+    # data = np.zeros(len(sA), dtype = dataType)
+
+    # data['sA'] = sA
+    # data['sB'] = sB
+    # data['eA'] = eA
+    # data['eB'] = eB
+
+    # data.tofile(fname)
+    if aggregate:
+        dataType = [('SA','u1'),('SB','u1'),('OA','u1'),('OB','u1')]
+    else:
+        dataType = [('SA','u1'),('SB','u1'),('OA','u8'),('OB','u8')]
+    data = data.astype(dtype=dataType)
+    binData = data.tobytes()
+    compressedData = zlib.compress(binData, level=-1)
+
+    return compressedData
+
 def convert_str_to_bytes(strData):
     data = base64.b64decode(strData)
     return data
@@ -52,13 +87,14 @@ def send_message(con, cmd, params, timeout=10000):
 
 
 def load_freqs(nStart=1,nFiles=1, nPulses=11):
-    path = '/Users/lks/Documents/BellData/2022/processed/'
+    path = '/Users/lks/Documents/BellData/2022/processed/test/'
     date = '2022_10_06/'
 
     files = dlm.processFilesInDir(path+date)
+    print(files)
 
-    dataFormat = [('SA','u1'),('SB','u1'),('OA','u8'),('OB','u8')]
-    # dataFormat = [('SA','u1'),('SB','u1'),('OA','u1'),('OB','u1')]
+    # dataFormat = [('SA','u1'),('SB','u1'),('OA','u8'),('OB','u8')]
+    dataFormat = [('SA','u1'),('SB','u1'),('OA','u1'),('OB','u1')]
     totalFreq = np.zeros((4,4)).astype(int)
     pulses = np.array(range(1,nPulses+1))
     print('')
@@ -66,20 +102,30 @@ def load_freqs(nStart=1,nFiles=1, nPulses=11):
     nStop = nFiles + nStart
     rawData = None 
     if nStop>len(files):
+        print('something')
         nStop = len(files)
+    print(range(nStart, nStop))
     for i in range(nStart, nStop):
+        print(i)
         fname = files[i]
         print(fname)
         data = dlm.read_data_file(path, fname, dataFormat=dataFormat)
-        freq, extraData = dlm.get_freqs_pulse_encoding(data, pulses)
+        # freq = dlm.get_freqs(data)
+        # if rawData is None:
+        #     rawData = data 
+        # else:
+        #     rawData = np.concatenate((rawData, extraData), axis=0)
+        # totalFreq += freq.astype(int)
+        freq, extraData = dlm.get_freqs_pulse_encoding(data, pulses, dataFormat=dataFormat)        
         totalFreq += freq.astype(int)
         if rawData is None:
             rawData = extraData 
         else:
             rawData = np.concatenate((rawData, extraData), axis=0)
     # rawData = rawData.astype(dataFormat)
-    binData = rawData.tobytes()
-    compressedData = zlib.compress(binData, level=-1)
+    # binData = rawData.tobytes()
+    # compressedData = zlib.compress(binData, level=-1)
+    compressedData = compress_binary_data(rawData, aggregate=True)
 
     return totalFreq, compressedData 
 
@@ -221,8 +267,13 @@ def process_entropy(conn, params):
 
 def get_experiment_parameters(conn, params):
     cmd = 'get_experiment_parameters'
-
+    print('params for jasper 1')
+    print(params)
+    print('')
     result = send_message(conn, cmd, params)
+    print('Params for Jasper 2')
+    print(result)
+    print('')
 
     pefs = np.array(result['pefs'])
     beta = float(result['beta'])
@@ -290,7 +341,7 @@ params['isQuantum'] = isQuantum
 # pefs, gain = calc_PEFs(freq, beta, epsilonBias, isQuantum)
 # Compute PEFs and other parameters 
 nPulses = 11
-freq, data = load_freqs(nStart=1,nFiles=1, nPulses=nPulses)
+# freq, data = load_freqs(nStart=1,nFiles=1, nPulses=nPulses)
 params['freq'] = freq
 pefs, beta, gain, nBitsThreshold, nTrialsNeeded, seedLength = get_experiment_parameters(extractorZMQ, params)
 print('')
@@ -301,7 +352,7 @@ params['gain'] = gain
 params['pefs'] = pefs
 params['beta'] = beta
 
-expFreq, rawData = load_freqs(nStart=10,nFiles=1, nPulses=11)
+expFreq, rawData = load_freqs(nStart=0,nFiles=1, nPulses=11)
 params['data'] = rawData 
 params['freq'] = expFreq
 params['stoppingCriteria'] = int(15E6)
