@@ -8,14 +8,11 @@ services:
       - "5553:5553"
     volumes:
       - ./python:/app
-    restart: always
     stdin_open: true
     tty: true
-    restart: always
     shm_size: 2048m
     command: ["python3", "extractor_server.py"]
-  
-
+    restart: unless-stopped
   # fridgemonitor:
   #   image: "bellmonitor"
   #   # ports:
