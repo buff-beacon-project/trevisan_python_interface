@@ -8,6 +8,7 @@ import PEF_Calculator as PEF
 import data_loading_mod as dlm
 import base64
 import codecs
+import re
 
 def parseSeed(base64Seed):
     decoded = base64.b64decode(base64Seed)
@@ -16,7 +17,7 @@ def parseSeed(base64Seed):
     return np.array(list).tolist()
 
 def bitStringToBase64(str):
-    as_hex = "%x" % int(str.replace('\n', ''), 2)
+    as_hex = "%x" % int(re.sub('[^01]', '', str), 2)
     b = codecs.decode(as_hex, 'hex')
     return base64.b64encode(b).decode('utf-8')
 
