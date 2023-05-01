@@ -9,6 +9,7 @@ import data_loading_mod as dlm
 import base64
 import codecs
 import re
+import math
 
 def parseSeed(base64Seed):
     decoded = base64.b64decode(base64Seed)
@@ -18,7 +19,8 @@ def parseSeed(base64Seed):
 
 def bitStringToBase64(str):
     as_hex = "%x" % int(re.sub('[^01]', '', str), 2)
-    b = codecs.decode(as_hex, 'hex')
+    as_hex_pad = as_hex.zfill(math.ceil(len(as_hex)/2)*2)
+    b = codecs.decode(as_hex_pad, 'hex')
     return base64.b64encode(b).decode('utf-8')
 
 class ExtractorServer(zmqh.Server):
