@@ -54,7 +54,8 @@ output from 'process_entropy':
             entropy = float encoded as UTF-8 that represents the number of bits of entropy in the inputs to the extractor,
             nBitsOut = int encoded as UTF-8 that represents the number of output bits from the extractor (typically 512),
             errorExtractor = float encoded as UTF-8 that is the error level for the extractor. Typically 0.2*2^(-64),
-            stoppingCriteria = int encoded as UTF-8; number of trials to look at
+            stoppingCriteria = int encoded as UTF-8; number of trials to look at,
+            isQuantum = boolean. If true it meens we are computing and using QEFs instead of PEFs
    }
 }
 output from 'extract':
