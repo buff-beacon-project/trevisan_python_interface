@@ -304,7 +304,7 @@ def calculate_extractor_properties(
     params["errorExtractor"] = errorExtractor
     params["beta"] = beta
     params["gain"] = gain
-    params["epsilonBias"] = epsilonBias
+    # params["epsilonBias"] = epsilonBias
     params["isQuantum"] = isQuantum
 
     result = send_message(conn, cmd, params)
