@@ -13,3 +13,7 @@ services:
     shm_size: 2048m
     command: ["python3", "extractor_server.py"]
     restart: unless-stopped
+
+networks:
+  default:
+    name: trevisan-network
