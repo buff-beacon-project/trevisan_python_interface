@@ -23,6 +23,19 @@ def bitStringToBase64(str):
     b = codecs.decode(as_hex_pad, 'hex')
     return base64.b64encode(b).decode('utf-8')
 
+def get_extractor_per_bit_error(errorExtractor, nBitsOut, isQuantum):
+    """
+    Compute the extractor error per bit to use with the Trevisan Extractor.
+    Depending on whether QEFs or PEFs are used, this value can change.
+    """
+    error_prob_per_bit = None
+    if isQuantum:
+        error_prob_per_bit = errorExtractor**2 / (2 * nBitsOut)
+    else:
+        error_prob_per_bit = errorExtractor / nBitsOut
+    return error_prob_per_bit
+
+
 class ExtractorServer(zmqh.Server):
     def __init__(self, port, n_workers, aggregate=True):
         if aggregate:
@@ -76,23 +89,33 @@ class ExtractorServer(zmqh.Server):
                 outcomesPadded[0:len(outcomesReordered)] = outcomesReordered
                 outcomesReordered = outcomesPadded
 
-        # print('step 2')
         outcomesReordered = outcomesReordered.astype(int)
-
-        # print('get rid of vals >1')
-        # outcomes[outcomes>0] = 1
-        # print('before to list', outcomesReordered[0:100])
-        # print('to list')
         outcomesReordered = outcomesReordered.tolist()
-        print('OUTCOMES', outcomesReordered[0:100])
+        # print('OUTCOMES', outcomesReordered[0:100])
 
+        extractorObject = TrevisanExtractorRun(
+            outcomesReordered,
+            seed,
+            entropy,
+            nBitsOut,
+            error_prob_per_bit=error_prob_per_bit,
+        )
         seed = parseSeed(params['seed'])
         entropy = params['entropy']
         nBitsOut = int(params['nBitsOut'])
         errorExtractor = float(params['errorExtractor'])
-
-        # extractorObject = TrevisanExtractorRun(params['outcomesReordered'], params['seed'], params['entropy'], params['nbits'], params['error_prob'])
-        extractorObject = TrevisanExtractorRun(outcomesReordered, seed, entropy, nBitsOut, errorExtractor)
+        isQuantum = bool(params["isQuantum"])
+        error_prob_per_bit = get_extractor_per_bit_error(
+            errorExtractor, nBitsOut, isQuantum
+        )
+        # extractorObject = TrevisanExtractorRun(outcomesReordered, seed, entropy, nBitsOut, errorExtractor)
+        extractorObject = TrevisanExtractorRun(
+            outcomesReordered,
+            seed,
+            entropy,
+            nBitsOut,
+            error_prob_per_bit=error_prob_per_bit,
+        )
         # Write the input and seed
         print('extractor object created')
         extractorObject.write_input()
