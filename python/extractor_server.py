@@ -93,13 +93,6 @@ class ExtractorServer(zmqh.Server):
         outcomesReordered = outcomesReordered.tolist()
         # print('OUTCOMES', outcomesReordered[0:100])
 
-        extractorObject = TrevisanExtractorRun(
-            outcomesReordered,
-            seed,
-            entropy,
-            nBitsOut,
-            error_prob_per_bit=error_prob_per_bit,
-        )
         seed = parseSeed(params['seed'])
         entropy = params['entropy']
         nBitsOut = int(params['nBitsOut'])
