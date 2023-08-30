@@ -23,23 +23,12 @@ def bitStringToBase64(str):
     b = codecs.decode(as_hex_pad, 'hex')
     return base64.b64encode(b).decode('utf-8')
 
-
 class ExtractorServer(zmqh.Server):
     def __init__(self, port, n_workers, aggregate=True):
         if aggregate:
-            self.dataFormat = [
-                ("SA", "u1"),
-                ("SB", "u1"),
-                ("OA", "u1"),
-                ("OB", "u1"),
-            ]
+            self.dataFormat = [('SA','u1'),('SB','u1'),('OA','u1'),('OB','u1')]
         else:
-            self.dataFormat = [
-                ("SA", "u1"),
-                ("SB", "u1"),
-                ("OA", "u8"),
-                ("OB", "u8"),
-            ]
+            self.dataFormat = [('SA','u1'),('SB','u1'),('OA','u8'),('OB','u8')]
 
         print(self.dataFormat)
         super().__init__(port, n_workers)
@@ -58,50 +47,45 @@ class ExtractorServer(zmqh.Server):
     #     Output: a string of '1's and '0's encoded into a python bytes object.
     #     '''
     #     # Turn the bytes recieved into a string
-<<<<<<< HEAD
 
-=======
->>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
 
-    def run_extractor(self, params):
-        # print("")
-        binData = self.convert_str_to_bytes(params["data"])
-        params["data"] = None
+    def run_extractor(self,params):
+        print('')
+        binData = self.convert_str_to_bytes(params['data'])
+        params['data'] = None
         data = dlm.read_data_buffer(binData, self.dataFormat)
         binData = None
 
-        outcomesReordered = np.array([[data["OA"]], [data["OB"]]])
+        outcomesReordered = np.array([[data['OA']],[data['OB']]])
         data = None
         outcomesReordered = outcomesReordered.transpose().flatten()
+        # print('step 1')
+        # print('')
 
-        nTrials = int(params["stoppingCriteria"])
-        if nTrials > -1:
-            nBits = 2 * nTrials
+        nTrials = int(params['stoppingCriteria'])
+        if nTrials>-1:
+            nBits = 2*nTrials
             # print('nBits', nBits, len(outcomesReordered))
-            if len(outcomesReordered) > nBits:
-                print("data too long, truncate to stoppingCriteria")
+            if len(outcomesReordered)>nBits:
+                print('data too long, truncate to stoppingCriteria')
                 outcomesReordered = outcomesReordered[0:nBits]
             else:
                 # Need to pad out the results
-                print("data too short, pad to stoppingCriteria")
+                print('data too short, pad to stoppingCriteria')
                 outcomesPadded = np.zeros(nBits)
-                outcomesPadded[0 : len(outcomesReordered)] = outcomesReordered
+                outcomesPadded[0:len(outcomesReordered)] = outcomesReordered
                 outcomesReordered = outcomesPadded
 
-        outcomesReordered = outcomesReordered.astype(int).tolist()
-        # outcomesReordered = outcomesReordered.tolist()
-        # print("OUTCOMES", outcomesReordered[0:100])
+        # print('step 2')
+        outcomesReordered = outcomesReordered.astype(int)
 
-        seed = np.array(params["seed"]).tolist()
-        entropy = params["entropy"]
-        nBitsOut = int(params["nBitsOut"])
-        errorExtractor = float(params["errorExtractor"])
-        isQuantum = bool(params["isQuantum"])
-        error_prob_per_bit = get_extractor_per_bit_error(
-            errorExtractor, nBitsOut, isQuantum
-        )
+        # print('get rid of vals >1')
+        # outcomes[outcomes>0] = 1
+        # print('before to list', outcomesReordered[0:100])
+        # print('to list')
+        outcomesReordered = outcomesReordered.tolist()
+        print('OUTCOMES', outcomesReordered[0:100])
 
-<<<<<<< HEAD
         seed = parseSeed(params['seed'])
         entropy = params['entropy']
         nBitsOut = int(params['nBitsOut'])
@@ -109,57 +93,39 @@ class ExtractorServer(zmqh.Server):
 
         # extractorObject = TrevisanExtractorRun(params['outcomesReordered'], params['seed'], params['entropy'], params['nbits'], params['error_prob'])
         extractorObject = TrevisanExtractorRun(outcomesReordered, seed, entropy, nBitsOut, errorExtractor)
-=======
-        extractorObject = TrevisanExtractorRun(
-            outcomesReordered,
-            seed,
-            entropy,
-            nBitsOut,
-            error_prob_per_bit=error_prob_per_bit,
-        )
->>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
         # Write the input and seed
-        print("extractor object created")
+        print('extractor object created')
         extractorObject.write_input()
-        print("write input")
+        print('write input')
         extractorObject.write_seed()
-        print("write seed")
+        print('write seed')
         extractorObject.execute_extractor()
-        print("reading output")
+        print('reading output')
         outBits = extractorObject.read_output()
-<<<<<<< HEAD
         print('output bits', outBits)
         print('cleaning up')
-=======
-        print("output bits", outBits)
-        print("cleaning up")
->>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
         extractorObject.remove_files()
         extractorObject = None
-        print("files deleted, ready for more input")
-        print("")
+        print('files deleted, ready for more input')
+        print('')
 
-<<<<<<< HEAD
         return bitStringToBase64(outBits)#.encode('utf-8')
-=======
-        return outBits  # .encode('utf-8')
->>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
 
     def get_delta(self, isQuantum):
         if isQuantum:
-            delta = 4e-8
+            delta = 4E-8
         else:
             delta = 0
         return delta
 
     def get_freqs(self, params):
-        binData = self.convert_str_to_bytes(params["data"])
+        binData = self.convert_str_to_bytes(params['data'])
         # binData = binData.tobytes()
         data = dlm.read_data_buffer(binData, self.dataFormat)
         # Truncate data to the stopping criteria
         # if params['stoppingCriteria']:
-        if "stoppingCriteria" in params:
-            stoppingCriteria = int(params["stoppingCriteria"])
+        if 'stoppingCriteria' in params:
+            stoppingCriteria = int(params['stoppingCriteria'])
         else:
             stoppingCriteria = -1
         data = data[0:stoppingCriteria]
@@ -172,33 +138,25 @@ class ExtractorServer(zmqh.Server):
         pass
 
     def find_optimal_beta(self, params):
-        freq = np.array(params["freq"])
-        epsilonBias = float(params["epsilonBias"])
+        freq = np.array(params['freq'])
+        epsilonBias = float(params['epsilonBias'])
         # delta = float(params['delta'])
-        nBitsOut = int(params["nBitsOut"])
+        nBitsOut = int(params['nBitsOut'])
         # error = float(params['error'])
-        errorSmoothness = params["errorSmoothness"]
-        errorExtractor = params["errorExtractor"]
+        errorSmoothness = params['errorSmoothness']
+        errorExtractor = params['errorExtractor']
         # fracSmoothness = float(params['fracSmoothness'])
-        isQuantum = bool(params["isQuantum"])
+        isQuantum = bool(params['isQuantum'])
         delta = self.get_delta(isQuantum)
 
-        beta = PEF.find_optimal_beta(
-            freq,
-            epsilonBias,
-            delta,
-            nBitsOut,
-            errorSmoothness,
-            errorExtractor,
-            isQuantum,
-        )
+        beta = PEF.find_optimal_beta(freq, epsilonBias, delta, nBitsOut, errorSmoothness, errorExtractor, isQuantum)
         return beta
 
     def calc_PEFs(self, params):
-        freq = np.array(params["freq"])
-        beta = float(params["beta"])
-        epsilonBias = float(params["epsilonBias"])
-        isQuantum = bool(params["isQuantum"])
+        freq = np.array(params['freq'])
+        beta = float(params['beta'])
+        epsilonBias = float(params['epsilonBias'])
+        isQuantum = bool(params['isQuantum'])
         delta = self.get_delta(isQuantum)
         pefs, gain = PEF.calc_PEFs(freq, beta, epsilonBias, delta)
         print(pefs)
@@ -206,50 +164,32 @@ class ExtractorServer(zmqh.Server):
         return pefs, gain
 
     def calc_entropy(self, params):
-        freq = np.array(params["freq"])
-        pefs = np.array(params["pefs"])
-        beta = float(params["beta"])
-        epsilonBias = float(params["epsilonBias"])
-        errorSmoothness = float(params["errorSmoothness"])
-        isQuantum = bool(params["isQuantum"])
+        freq = np.array(params['freq'])
+        pefs = np.array(params['pefs'])
+        beta = float(params['beta'])
+        epsilonBias = float(params['epsilonBias'])
+        errorSmoothness = float(params['errorSmoothness'])
+        isQuantum = bool(params['isQuantum'])
         delta = self.get_delta(isQuantum)
 
-<<<<<<< HEAD
         entropy = PEF.calculate_entropy(freq, pefs, errorSmoothness,
                 beta, epsilonBias, delta, isQuantum=isQuantum)
-=======
-        entropy = PEF.calculate_entropy(
-            freq,
-            pefs,
-            errorSmoothness,
-            beta,
-            epsilonBias,
-            delta,
-            isQuantum=isQuantum,
-        )
->>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
         return entropy
 
     def compute_extractor_properties(self, params):
-        nBitsOut = int(params["nBitsOut"])
-        gain = float(params["gain"])
-        errorSmoothness = float(params["errorSmoothness"])
-        errorExtractor = float(params["errorExtractor"])
-        beta = float(params["beta"])
-        gain = float(params["gain"])
-        epsilonBias = float(params["epsilonBias"])
-        isQuantum = bool(params["isQuantum"])
+        nBitsOut = int(params['nBitsOut'])
+        gain  = float(params['gain'])
+        errorSmoothness = float(params['errorSmoothness'])
+        errorExtractor = float(params['errorExtractor'])
+        beta  = float(params['beta'])
+        gain  = float(params['gain'])
+        epsilonBias  = float(params['epsilonBias'])
+        isQuantum = bool(params['isQuantum'])
 
-        nBitsThreshold = PEF.calc_threshold_bits(
-            nBitsOut, errorExtractor, isQuantum=isQuantum
-        )
-        nTrialsNeeded = PEF.compute_minimum_trials(
-            nBitsOut, beta, gain, errorSmoothness, isQuantum=isQuantum
-        )
-        nBitsIn = 2 * nTrialsNeeded
-        seedLength = PEF.calc_seed_length(
-            nBitsOut, nBitsIn, errorExtractor, isQuantum=isQuantum
-        )
+        nBitsThreshold = PEF.calc_threshold_bits(nBitsOut, errorExtractor, isQuantum=isQuantum)
+        nTrialsNeeded = PEF.compute_minimum_trials(nBitsOut, beta, gain, errorSmoothness, isQuantum=isQuantum)
+        nBitsIn = 2*nTrialsNeeded
+        seedLength = PEF.calc_seed_length(nBitsOut, nBitsIn, errorExtractor, isQuantum=isQuantum)
 
         return nBitsThreshold, nTrialsNeeded, seedLength
 
@@ -257,61 +197,32 @@ class ExtractorServer(zmqh.Server):
         # nBitsThreshold, nTrialsNeeded, seedLength = self.compute_extractor_properties(params)
         # params['nBitsThreshold'] = nBitsThreshold
         freq = self.get_freqs(params)
-<<<<<<< HEAD
         params['freq'] = freq
-=======
-        params["freq"] = freq
->>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
         entropy = self.calc_entropy(params)
 
-        nBitsThreshold = float(params["nBitsThreshold"])
-        success = bool(entropy > nBitsThreshold)
+        nBitsThreshold = float(params['nBitsThreshold'])
+        success = bool(entropy>nBitsThreshold)
         return entropy, success
 
     def get_experiment_parameters(self, params):
         # params['stoppingCriteria'] = -1
         # freq = self.get_freqs(params)
         # params['freq'] = freq
-        print("finding optimal_beta")
+        print('finding optimal_beta')
         beta = self.find_optimal_beta(params)
-        params["beta"] = beta
-        print("beta", beta)
+        params['beta'] = beta
+        print('beta', beta)
 
         pefs, gain = self.calc_PEFs(params)
-<<<<<<< HEAD
         params['pefs'] = pefs
         params['gain'] = gain
         print('pefs', pefs)
         print('gain', gain)
-=======
-        params["pefs"] = pefs
-        params["gain"] = gain
-        print("pefs", pefs)
-        print("gain", gain)
->>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
 
-        (
-            nBitsThreshold,
-            nTrialsNeeded,
-            seedLength,
-        ) = self.compute_extractor_properties(params)
+        nBitsThreshold, nTrialsNeeded, seedLength = self.compute_extractor_properties(params)
         return pefs, beta, gain, nBitsThreshold, nTrialsNeeded, seedLength
 
-<<<<<<< HEAD
     def handle(self,msg):
-=======
-    def handle(self, msg):
-        print("")
-        print("message received")
-        inputs = json.loads(msg)
-        cmd = inputs["cmd"]
-        params = inputs["params"]
-        # print("Received request: %s" % cmd)
-        # print('cmd', cmd[0])
-        cmd = cmd.lower()
-        print("Received command:", cmd)
-
->>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
         # Msgout is returned from motor command
         try:
             print('')
@@ -326,28 +237,23 @@ class ExtractorServer(zmqh.Server):
             if cmd == "extract":
                 outBits = self.run_extractor(params)
                 res = {}
-                res["outBits"] = outBits
+                res['outBits'] = outBits
 
-            elif cmd == "freqs":
+            elif cmd == 'freqs':
                 freqs = self.get_freqs(params)
                 res = {}
-                res["freqs"] = freqs
+                res['freqs'] = freqs
                 # msgout = freqs
 
-<<<<<<< HEAD
             elif cmd == 'calc_pefs':
-=======
-            elif cmd == "calc_pefs":
->>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
                 pefs, gain = self.calc_PEFs(params)
                 res = {}
-                res["pefs"] = pefs
-                res["gain"] = gain
+                res['pefs'] = pefs
+                res['gain'] = gain
 
-            elif cmd == "find_beta":
+            elif cmd == 'find_beta':
                 beta = self.find_optimal_beta(params)
                 res = {}
-<<<<<<< HEAD
                 res['beta'] = beta
 
             elif cmd == 'calc_entropy':
@@ -356,78 +262,43 @@ class ExtractorServer(zmqh.Server):
                 res['entropy'] = entropy
 
             elif cmd == 'process_entropy':
-=======
-                res["beta"] = beta
-
-            elif cmd == "calc_entropy":
-                entropy = self.calc_entropy(params)
-                res = {}
-                res["entropy"] = entropy
-
-            elif cmd == "process_entropy":
->>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
                 entropy, success = self.process_entropy(params)
                 res = {}
-                res["entropy"] = entropy
+                res['entropy'] = entropy
                 # res['nBitsThreshold'] = nBitsThreshold
-                res["isThereEnoughEntropy"] = success
-                print("entropy", entropy, success)
+                res['isThereEnoughEntropy'] = success
+                print('entropy', entropy, success)
 
-            elif cmd == "calc_extractor_properties":
-                (
-                    nBitsThreshold,
-                    nTrialsNeeded,
-                    seedLength,
-                ) = self.compute_extractor_properties(params)
+            elif cmd == 'calc_extractor_properties':
+                nBitsThreshold, nTrialsNeeded, seedLength = self.compute_extractor_properties(params)
                 res = {}
-<<<<<<< HEAD
                 res['nBitsThreshold'] = nBitsThreshold
                 res['nTrialsNeeded'] = nTrialsNeeded
                 res['seedLength'] = seedLength
 
             elif cmd == 'get_experiment_parameters':
                 pefs, beta, gain, nBitsThreshold, nTrialsNeeded, seedLength = self.get_experiment_parameters(params)
-=======
-                res["nBitsThreshold"] = nBitsThreshold
-                res["nTrialsNeeded"] = nTrialsNeeded
-                res["seedLength"] = seedLength
-
-            elif cmd == "get_experiment_parameters":
-                (
-                    pefs,
-                    beta,
-                    gain,
-                    nBitsThreshold,
-                    nTrialsNeeded,
-                    seedLength,
-                ) = self.get_experiment_parameters(params)
->>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
                 res = {}
-                res["pefs"] = pefs
-                res["beta"] = beta
-                res["gain"] = gain
-                res["nBitsThreshold"] = nBitsThreshold
-                res["nTrialsNeeded"] = nTrialsNeeded
-                res["seedLength"] = seedLength
+                res['pefs'] = pefs
+                res['beta'] = beta
+                res['gain'] = gain
+                res['nBitsThreshold'] = nBitsThreshold
+                res['nTrialsNeeded'] = nTrialsNeeded
+                res['seedLength'] = seedLength
 
             else:
                 res = {}
-                res["error"] = "Invalid Command"
+                res['error'] = "Invalid Command"
 
         # Catch errors and return them
         except Exception as e:
             print("Error: %r" % e)
             traceback.print_exc()
             res = {}
-<<<<<<< HEAD
             res['error'] = "Error: "+str(e)
             # raise e
-=======
-            res["error"] = "Error: " + str(e)
-            raise e
->>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
         msgout = self.encode_message_to_JSON(res)
-        msgout = msgout.encode("utf-8")
+        msgout = msgout.encode('utf-8')
 
         return msgout
 
@@ -436,14 +307,14 @@ class ExtractorServer(zmqh.Server):
         return data
 
     def convert_bytes_to_str(self, binData):
-        strData = base64.b64encode(binData).decode("utf-8")
+        strData = base64.b64encode(binData).decode('utf-8')
         return strData
 
     def encode_message_to_JSON(self, result):
         for key, value in result.items():
-            if type(value) == bytes:
+            if type(value)==bytes:
                 value = convert_bytes_to_str(value)
-            if type(value) == np.ndarray:
+            if type(value)==np.ndarray:
                 value = value.tolist()
             # if isinstance(value, bool):
             #     return str(value).lower()
@@ -452,19 +323,6 @@ class ExtractorServer(zmqh.Server):
         return msgJSON
 
 
-def get_extractor_per_bit_error(errorExtractor, nBitsOut, isQuantum):
-    """
-    Compute the extractor error per bit to use with the Trevisan Extractor.
-    Depending on whether QEFs or PEFs are used, this value can change.
-    """
-    error_prob_per_bit = None
-    if isQuantum:
-        error_prob_per_bit = errorExtractor**2 / (2 * nBitsOut)
-    else:
-        error_prob_per_bit = errorExtractor / nBitsOut
-    return error_prob_per_bit
-
-
-if __name__ == "__main__":
-    print("Starting Extractor Server")
-    pefs = ExtractorServer(port="5553", n_workers=1, aggregate=True)
+if __name__ == '__main__':
+    print('Starting Extractor Server')
+    pefs = ExtractorServer(port='5553', n_workers=1, aggregate=True)
