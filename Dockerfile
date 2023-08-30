@@ -39,8 +39,8 @@ RUN pip3 install pyzmq
 RUN python3 -m pip install git+https://github.com/kshalm/zmqhelpers.git
 # RUN pip3 install numpy
 
-COPY requirements.txt /app/requirements.txt
 WORKDIR /app
+COPY . .
 # RUN python3 -m pip install --upgrade pip && \
 # pip3 --no-cache-dir install -r requirements.txt
 RUN python3 -m pip --no-cache-dir install -r requirements.txt
