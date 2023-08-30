@@ -9,12 +9,10 @@ on:
 jobs:
   echo:
     runs-on: ubuntu-latest
-    permissions:
-      packages: read
     steps:
       - name: Echo
         uses: actions/github-script@v6
         with:
           script: |
-            console.log(JSON.stringify(github.event.workflow_run, null, 2))
+            console.log(JSON.stringify(context.payload.workflow_run, null, 2))
             
