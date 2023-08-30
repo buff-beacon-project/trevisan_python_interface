@@ -4,7 +4,8 @@ import numpy as np
 import os
 
 class TrevisanExtractorRun:
-    def __init__(self, input, seed, entropy=None, nbits=512, error_prob=1.147943701974890e-43, file_dir='/dev/shm'):
+    def __init__(self, input, seed, entropy=None, nbits=512, file_dir='/dev/shm', error_prob_per_bit=1E-45):
+        #error_prob=1.147943701974890e-43
         self.input = input #list
         # The settings of the experiment are either 1 or 2. So, we subtract to get 0 or 1.
         # self.seed = np.array(seed)-1 #ends as numpy array, can start as list of ints
@@ -14,12 +15,13 @@ class TrevisanExtractorRun:
         self.file_dir = Path(file_dir) #Location of storage on the container
         self.shm = file_dir
         self.nbits = nbits #int
-        self.error_prob = (error_prob**2)/512/2 # Convert to error/bit
+        # self.error_prob = (error_prob**2)/512/2 # Convert to error/bit
         # print('Error per bit:', self.error_prob)
         self.input_file = 'input.txt'
         self.seed_file = 'seed.txt'
         self.log_file = 'log.txt'
         self.output_file = 'output.txt'
+        self.error_prob_per_bit = error_prob_per_bit
 
     # def set_entropy(self, entropy):
     #     # Used to set the entropy to the value specified
@@ -70,7 +72,7 @@ class TrevisanExtractorRun:
         command_str += ' -m ' + str(self.nbits)
         command_str += ' -a ' + str(self.entropy)
         command_str += ' -b '
-        command_str += ' -e ' + str(self.error_prob)
+        command_str += ' -e ' + str(self.error_prob_per_bit)
         command_str += ' -o ' + str(self.file_dir / self.output_file)
         command_str += ' -t 6'
         command_str += ' > ' + str(self.file_dir / self.log_file)

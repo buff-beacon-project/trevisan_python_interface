@@ -87,9 +87,9 @@ platform=$(shell uname)
  LIBDIRS+=-L../bin/include/lib
  CXXFLAGS=$(OPTIMISE) $(OPENMP) $(DEBUG) $(VARIANTS) $(INCDIRS)
 
-ifeq ($(HAVE_SSE4),y)
-CXXFLAGS+=-msse4.2 -DHAVE_SSE4
-endif
+#ifeq ($(HAVE_SSE4),y)
+#CXXFLAGS+=-msse4.2 -DHAVE_SSE4
+#endif
 
 LIBS=-lgmp -lm -lntl -lssl -lcrypto -lpthread
 
