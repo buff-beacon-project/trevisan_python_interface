@@ -1,0 +1,17 @@
+name: Test
+
+on:
+  registry_package:
+    types: [published, updated]
+
+jobs:
+  echo:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.registry_package.package_version.container_metadata.tag.name != '' }}
+    steps:
+      - name: Echo
+        uses: actions/github-script@v6
+        with:
+          script: |
+            console.log(JSON.stringify(github.event.registry_package, null, 2))
+            
