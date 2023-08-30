@@ -7,6 +7,8 @@ on:
 jobs:
   echo:
     runs-on: ubuntu-latest
+    permissions:
+      packages: read
     if: ${{ github.event.registry_package.package_version.container_metadata.tag.name != '' }}
     steps:
       - name: Echo
