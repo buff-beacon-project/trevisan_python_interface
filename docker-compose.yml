@@ -12,4 +12,4 @@ services:
     tty: true
     shm_size: 2048m
     command: ["python3", "extractor_server.py"]
-    restart: unless-stopped
+    command: ["python3", "extractor_server.py"]
