@@ -6,8 +6,22 @@ import time
 import traceback
 import PEF_Calculator as PEF
 import data_loading_mod as dlm
-import data_loading_mod as dlm
 import base64
+import codecs
+import re
+import math
+
+def parseSeed(base64Seed):
+    decoded = base64.b64decode(base64Seed)
+    str = "".join(["{:08b}".format(x) for x in decoded])
+    list = [int(x) for x in str]
+    return np.array(list).tolist()
+
+def bitStringToBase64(str):
+    as_hex = "%x" % int(re.sub('[^01]', '', str), 2)
+    as_hex_pad = as_hex.zfill(math.ceil(len(as_hex)/2)*2)
+    b = codecs.decode(as_hex_pad, 'hex')
+    return base64.b64encode(b).decode('utf-8')
 
 
 class ExtractorServer(zmqh.Server):
@@ -44,6 +58,10 @@ class ExtractorServer(zmqh.Server):
     #     Output: a string of '1's and '0's encoded into a python bytes object.
     #     '''
     #     # Turn the bytes recieved into a string
+<<<<<<< HEAD
+
+=======
+>>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
 
     def run_extractor(self, params):
         # print("")
@@ -83,6 +101,15 @@ class ExtractorServer(zmqh.Server):
             errorExtractor, nBitsOut, isQuantum
         )
 
+<<<<<<< HEAD
+        seed = parseSeed(params['seed'])
+        entropy = params['entropy']
+        nBitsOut = int(params['nBitsOut'])
+        errorExtractor = float(params['errorExtractor'])
+
+        # extractorObject = TrevisanExtractorRun(params['outcomesReordered'], params['seed'], params['entropy'], params['nbits'], params['error_prob'])
+        extractorObject = TrevisanExtractorRun(outcomesReordered, seed, entropy, nBitsOut, errorExtractor)
+=======
         extractorObject = TrevisanExtractorRun(
             outcomesReordered,
             seed,
@@ -90,6 +117,7 @@ class ExtractorServer(zmqh.Server):
             nBitsOut,
             error_prob_per_bit=error_prob_per_bit,
         )
+>>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
         # Write the input and seed
         print("extractor object created")
         extractorObject.write_input()
@@ -99,14 +127,23 @@ class ExtractorServer(zmqh.Server):
         extractorObject.execute_extractor()
         print("reading output")
         outBits = extractorObject.read_output()
+<<<<<<< HEAD
+        print('output bits', outBits)
+        print('cleaning up')
+=======
         print("output bits", outBits)
         print("cleaning up")
+>>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
         extractorObject.remove_files()
         extractorObject = None
         print("files deleted, ready for more input")
         print("")
 
+<<<<<<< HEAD
+        return bitStringToBase64(outBits)#.encode('utf-8')
+=======
         return outBits  # .encode('utf-8')
+>>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
 
     def get_delta(self, isQuantum):
         if isQuantum:
@@ -125,7 +162,6 @@ class ExtractorServer(zmqh.Server):
             stoppingCriteria = int(params["stoppingCriteria"])
         else:
             stoppingCriteria = -1
-            stoppingCriteria = -1
         data = data[0:stoppingCriteria]
         freq = dlm.get_freqs(data)
         freq = freq
@@ -133,7 +169,6 @@ class ExtractorServer(zmqh.Server):
         return freq
 
     def extract_data(self, data):
-        pass
         pass
 
     def find_optimal_beta(self, params):
@@ -179,6 +214,10 @@ class ExtractorServer(zmqh.Server):
         isQuantum = bool(params["isQuantum"])
         delta = self.get_delta(isQuantum)
 
+<<<<<<< HEAD
+        entropy = PEF.calculate_entropy(freq, pefs, errorSmoothness,
+                beta, epsilonBias, delta, isQuantum=isQuantum)
+=======
         entropy = PEF.calculate_entropy(
             freq,
             pefs,
@@ -188,6 +227,7 @@ class ExtractorServer(zmqh.Server):
             delta,
             isQuantum=isQuantum,
         )
+>>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
         return entropy
 
     def compute_extractor_properties(self, params):
@@ -217,7 +257,11 @@ class ExtractorServer(zmqh.Server):
         # nBitsThreshold, nTrialsNeeded, seedLength = self.compute_extractor_properties(params)
         # params['nBitsThreshold'] = nBitsThreshold
         freq = self.get_freqs(params)
+<<<<<<< HEAD
+        params['freq'] = freq
+=======
         params["freq"] = freq
+>>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
         entropy = self.calc_entropy(params)
 
         nBitsThreshold = float(params["nBitsThreshold"])
@@ -234,10 +278,17 @@ class ExtractorServer(zmqh.Server):
         print("beta", beta)
 
         pefs, gain = self.calc_PEFs(params)
+<<<<<<< HEAD
+        params['pefs'] = pefs
+        params['gain'] = gain
+        print('pefs', pefs)
+        print('gain', gain)
+=======
         params["pefs"] = pefs
         params["gain"] = gain
         print("pefs", pefs)
         print("gain", gain)
+>>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
 
         (
             nBitsThreshold,
@@ -246,6 +297,9 @@ class ExtractorServer(zmqh.Server):
         ) = self.compute_extractor_properties(params)
         return pefs, beta, gain, nBitsThreshold, nTrialsNeeded, seedLength
 
+<<<<<<< HEAD
+    def handle(self,msg):
+=======
     def handle(self, msg):
         print("")
         print("message received")
@@ -257,8 +311,18 @@ class ExtractorServer(zmqh.Server):
         cmd = cmd.lower()
         print("Received command:", cmd)
 
+>>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
         # Msgout is returned from motor command
         try:
+            print('')
+            print('message received')
+            inputs = json.loads(msg)
+            cmd = inputs['cmd']
+            params = inputs['params']
+            # print("Received request: %s" % cmd)
+            # print('cmd', cmd[0])
+            cmd = cmd.lower()
+            print('Received command:', cmd)
             if cmd == "extract":
                 outBits = self.run_extractor(params)
                 res = {}
@@ -270,7 +334,11 @@ class ExtractorServer(zmqh.Server):
                 res["freqs"] = freqs
                 # msgout = freqs
 
+<<<<<<< HEAD
+            elif cmd == 'calc_pefs':
+=======
             elif cmd == "calc_pefs":
+>>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
                 pefs, gain = self.calc_PEFs(params)
                 res = {}
                 res["pefs"] = pefs
@@ -279,6 +347,16 @@ class ExtractorServer(zmqh.Server):
             elif cmd == "find_beta":
                 beta = self.find_optimal_beta(params)
                 res = {}
+<<<<<<< HEAD
+                res['beta'] = beta
+
+            elif cmd == 'calc_entropy':
+                entropy = self.calc_entropy(params)
+                res = {}
+                res['entropy'] = entropy
+
+            elif cmd == 'process_entropy':
+=======
                 res["beta"] = beta
 
             elif cmd == "calc_entropy":
@@ -287,6 +365,7 @@ class ExtractorServer(zmqh.Server):
                 res["entropy"] = entropy
 
             elif cmd == "process_entropy":
+>>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
                 entropy, success = self.process_entropy(params)
                 res = {}
                 res["entropy"] = entropy
@@ -301,6 +380,14 @@ class ExtractorServer(zmqh.Server):
                     seedLength,
                 ) = self.compute_extractor_properties(params)
                 res = {}
+<<<<<<< HEAD
+                res['nBitsThreshold'] = nBitsThreshold
+                res['nTrialsNeeded'] = nTrialsNeeded
+                res['seedLength'] = seedLength
+
+            elif cmd == 'get_experiment_parameters':
+                pefs, beta, gain, nBitsThreshold, nTrialsNeeded, seedLength = self.get_experiment_parameters(params)
+=======
                 res["nBitsThreshold"] = nBitsThreshold
                 res["nTrialsNeeded"] = nTrialsNeeded
                 res["seedLength"] = seedLength
@@ -314,6 +401,7 @@ class ExtractorServer(zmqh.Server):
                     nTrialsNeeded,
                     seedLength,
                 ) = self.get_experiment_parameters(params)
+>>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
                 res = {}
                 res["pefs"] = pefs
                 res["beta"] = beta
@@ -331,8 +419,13 @@ class ExtractorServer(zmqh.Server):
             print("Error: %r" % e)
             traceback.print_exc()
             res = {}
+<<<<<<< HEAD
+            res['error'] = "Error: "+str(e)
+            # raise e
+=======
             res["error"] = "Error: " + str(e)
             raise e
+>>>>>>> de87937 (Fixed bug in the caluclations of the bit error for the extractor when using PEFs. Added in updated Dockerfiles for Apple Silicon)
         msgout = self.encode_message_to_JSON(res)
         msgout = msgout.encode("utf-8")
 
