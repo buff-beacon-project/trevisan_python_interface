@@ -14,7 +14,10 @@ FROM base AS install
 # install with --production (exclude devDependencies)
 RUN mkdir -p /temp/prod
 COPY package.json /temp/prod/
-RUN cd /temp/prod && VCPKG_FORCE_SYSTEM_BINARIES=1 npm install --frozen-lockfile --omit=dev
+RUN --mount=type=cache,target=/temp/prod/.npm \
+  cd /temp/prod && \
+  npm set cache /temp/prod/.npm && \
+  VCPKG_FORCE_SYSTEM_BINARIES=1 npm install --frozen-lockfile --omit=dev
 
 # copy node_modules from temp directory
 # then copy all (non-ignored) project files into the image

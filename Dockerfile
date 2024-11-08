@@ -1,8 +1,5 @@
-FROM ubuntu:xenial
-
-RUN apt-get update
-
-RUN apt-get install -y make \
+FROM ubuntu:xenial as base
+RUN apt-get update && apt-get install -y make \
   cmake \
   libgmp3-dev \
   libntl-dev \
@@ -22,9 +19,10 @@ RUN ./configure && make && make install
 RUN wget https://bootstrap.pypa.io/get-pip.py -O get-pip.py
 RUN wget https://bootstrap.pypa.io/pip/3.5/get-pip.py -O get-pip.py
 RUN python3 get-pip.py
-
-WORKDIR /
 RUN rm -rf /tmp/python
+
+FROM base as release
+WORKDIR /
 
 RUN mkdir ./trev/
 COPY ./trev/ ./trev/
@@ -34,5 +32,6 @@ RUN python3 -m pip install pyzmq
 RUN python3 -m pip install git+https://github.com/kshalm/zmqhelpers.git
 
 WORKDIR /app
-COPY . .
+COPY requirements.txt .
 RUN python3 -m pip --no-cache-dir install -r requirements.txt
+COPY ./python .

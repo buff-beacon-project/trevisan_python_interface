@@ -21,6 +21,8 @@ services:
     image: "curby-verifier"
     command: ["100"]
     restart: no
+    # volumes:
+    #   - ./verifier/index.ts:/usr/src/app/index.ts
     depends_on:
       - trevisan
     profiles:
