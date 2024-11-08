@@ -17,7 +17,7 @@ RUN apt-get install -y make \
 
 WORKDIR /tmp/python
 RUN wget https://www.python.org/ftp/python/3.8.5/Python-3.8.5.tgz -O - | tar xzvf -
-WORKDIR Python-3.8.5
+WORKDIR /tmp/python/Python-3.8.5
 RUN ./configure && make && make install
 RUN wget https://bootstrap.pypa.io/get-pip.py -O get-pip.py
 RUN wget https://bootstrap.pypa.io/pip/3.5/get-pip.py -O get-pip.py

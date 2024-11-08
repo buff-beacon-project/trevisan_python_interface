@@ -1,0 +1,92 @@
+version: "3.3"
+services:
+  trevisan:
+    hostname: "trevisan"
+    build: .
+    image: "trevisan"
+    ports:
+      - "5553:5553"
+    volumes:
+      - ./python:/app/python
+    stdin_open: true
+    tty: true
+    shm_size: 2048m
+    command: ["python3", "/app/python/extractor_server.py"]
+    restart: unless-stopped
+  # fridgemonitor:
+  #   image: "bellmonitor"
+  #   # ports:
+  #   #   - "8502:8502"
+  #   volumes:
+  #     - ./fridge:/app
+  #     - ./config:/config
+  #   stdin_open: true
+  #   tty: true
+  #   restart: always
+  #   depends_on:
+  #     - "redis"
+  #   network_mode: "service:redis"
+  #   command: ["python3", "get_fridge_temp.py"]
+  # ttags:
+  #   image: "bellmonitor"
+  #   # ports:
+  #   #   - "8502:8502"
+  #   volumes:
+  #     - ./ttags:/app
+  #     - ./config:/config
+  #   stdin_open: true
+  #   tty: true
+  #   restart: always
+  #   depends_on:
+  #     - "redis"
+  #   network_mode: "service:redis"
+  #   command: ["python3", "run.py"]
+  #   # command: ["sh"]
+  # settingsEditor:
+  #   image: "bellmonitor"
+  #   # ports:
+  #   #   - "8502:8502"
+  #   volumes:
+  #     - ./monitor:/app
+  #     - ./config:/config
+  #   stdin_open: true
+  #   tty: true
+  #   restart: always
+  #   depends_on:
+  #     - "redis"
+  #   network_mode: "service:redis"
+  #   command: ["streamlit", "run", "STSidebar.py", "--server.port", "8502", "--browser.gatherUsageStats", "False"]
+  # detectorEditor:
+  #   image: "bellmonitor"
+  #   # ports:
+  #   #   - "8503:8503"
+  #   volumes:
+  #     - ./monitor:/app
+  #     - ./config:/config
+  #   stdin_open: true
+  #   tty: true
+  #   restart: always
+  #   depends_on:
+  #     - "redis"
+  #   network_mode: "service:redis"
+  #   command: ["streamlit", "run", "detectors.py", "--server.port", "8503", "--browser.gatherUsageStats", "False"]
+  # monitor:
+  #   image: "bellmonitor"
+  #   # ports:
+  #   #   - "80:80"
+  #   volumes:
+  #     - ./monitor:/app
+  #     - ./config:/config
+  #   environment:
+  #     - "EXTERNAL_IP=${EXTERNAL_IP}"
+  #   stdin_open: true
+  #   tty: true
+  #   restart: always
+  #   depends_on:
+  #     - "redis"
+  #   network_mode: "service:redis"
+  #   command: ["streamlit", "run", "streamlittest.py", "--server.port", "80", "--browser.gatherUsageStats", "False"]
+
+networks:
+  default:
+    name: trevisan-network
