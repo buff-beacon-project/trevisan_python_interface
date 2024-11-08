@@ -9,7 +9,7 @@
     "typescript": "^5.6.3"
   },
   "dependencies": {
-    "@buff-beacon-project/curby-client": "^1.1.0",
+    "@buff-beacon-project/curby-client": "^1.1.4",
     "zeromq": "^6.1.2"
   }
 }

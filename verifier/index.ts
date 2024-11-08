@@ -102,8 +102,10 @@ print(`Bell chain: ${CHAINS.bell}`)
 if (roundData.validations.bellResponse?.ok) {
   print('Bell chain has valid response pulse')
   print('The dataHash in bell pulse matches CURBy precommit pulse')
+} else if (!roundData.pulses.precommit) {
+  console.error('No precommit pulse')
 } else {
-  console.error(`Bell response pulse is not valid: ${roundData.validations.bellResponse!.reason}`)
+  console.error(`Bell response pulse check failed: ${roundData.validations.bellResponse!.reason}`)
 }
 groupEnd()
 
@@ -115,14 +117,14 @@ if (roundData.validations.seedOrdering?.ok) {
 } else if (roundData.pulses.precommit) {
   console.error(`Seed ordering check failed: ${roundData.validations.seedOrdering!.reason}`)
 } else {
-  console.error('No precommit pulse found')
+  console.error('No precommit pulse')
 }
 groupEnd()
 
 groupStart('Seed Value')
 if (roundData.validations.seed?.ok) {
   print('Seed value is valid')
-  print(`Seed begins with: (base68)${roundData.validations.seed!.data?.bytes.slice(0, 10)}...`)
+  print(`Seed begins with: (base64) ${roundData.validations.seed!.data?.bytes.slice(0, 10)}...`)
 } else if (roundData.pulses.result) {
   console.error(`Seed verification failed: ${roundData.validations.seed!.reason}`)
 } else {
@@ -133,7 +135,10 @@ groupEnd()
 const requestParams = roundData.pulses.request.value.content.payload.parameters
 
 print('Fetching bell data...')
-const bellData = await client.fetchRoundData(roundData)
+const bellData = await client.fetchRoundData(roundData).catch((err) => {
+  console.error('Error fetching bell data:', err.message)
+  process.exit(1)
+})
 print('done (hash OK)')
 
 groupStart('Hypothesis test')
