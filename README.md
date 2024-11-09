@@ -13,10 +13,17 @@ To perform a verification of a given CURBy-Q round, you will first need [docker 
 
 ### Setup
 
-To build, use docker compose:
+First clone this repository:
 
 ```sh
-docker podman compose --profile=verify build
+git clone https://github.com/buff-beacon-project/trevisan_python_interface
+cd trevisan_python_interface
+```
+
+Then build, using docker compose:
+
+```sh
+docker compose --profile=verify build
 ```
 
 ### Verification
