@@ -7,11 +7,11 @@ services:
     ports:
       - "5553:5553"
     volumes:
-      - ./python:/app/python
+      - ./python:/app
     stdin_open: true
     tty: true
     shm_size: 2048m
-    command: ["python3", "/app/python/extractor_server.py"]
+    command: ["python3", "/app/extractor_server.py"]
     restart: unless-stopped
 
   verify:
