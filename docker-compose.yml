@@ -14,20 +14,6 @@ services:
     command: ["python3", "/app/extractor_server.py"]
     restart: unless-stopped
 
-  verify:
-    build:
-      context: verifier
-      dockerfile: Dockerfile
-    image: "curby-verifier"
-    command: ["100"]
-    restart: no
-    # volumes:
-    #   - ./verifier/index.ts:/usr/src/app/index.ts
-    depends_on:
-      - trevisan
-    profiles:
-      - "verify"
-
 networks:
   default:
     name: trevisan-network
